@@ -5,7 +5,7 @@ const connectDB = mysql.createPool({
     user: 'shahbaz07',
     password: 'shahbaz2007.',
     database: 'sellit-pakistan',
-    DB_PORT=3306,
+    port: 3306,
     // host: 'localhost',
     // user: 'root',
     // password: 'shahbaz2007',
