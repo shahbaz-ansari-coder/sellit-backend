@@ -36,7 +36,25 @@ const createUsersTable = async (cb) => {
       }
     }
 
-    // Step 3: Create OTPs table if not exists
+    // Step 2.1: Remove unwanted columns if they exist
+    const unwantedColumns = ['name', 'email'];
+    for (const col of unwantedColumns) {
+      const [result] = await db.query(
+        `SELECT COUNT(*) AS cnt
+         FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = 'users'
+           AND COLUMN_NAME = ?`,
+        [col]
+      );
+
+      if (result[0].cnt > 0) {
+        await db.query(`ALTER TABLE users DROP COLUMN ${col}`);
+        console.log(`🗑️ Dropped unwanted column '${col}' from users table.`);
+      }
+    }
+
+    // Step 3: Create 'otps' table if not exists
     await db.query(`
       CREATE TABLE IF NOT EXISTS otps (
         id INT AUTO_INCREMENT PRIMARY KEY,
