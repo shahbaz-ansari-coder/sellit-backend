@@ -9,12 +9,17 @@ const createUsersTable = async (cb) => {
       );
     `);
 
-    // Step 2: Ensure required columns exist in 'users'
+    // Step 2: Ensure required columns exist and are correct
     const requiredColumns = [
       { name: 'username', type: "VARCHAR(100) NOT NULL UNIQUE" },
       { name: 'identifier', type: "VARCHAR(100) NOT NULL UNIQUE" },
       { name: 'password', type: "VARCHAR(255) NOT NULL" },
-      { name: 'role', type: "ENUM('user', 'admin') DEFAULT 'user'" },
+      {
+        name: 'role',
+        type: "ENUM('user', 'admin', 'team_member') DEFAULT 'user'",
+        expectedType: "enum('user','admin','team_member')"
+      },
+      { name: 'state', type: "VARCHAR(100) DEFAULT NULL" },
       { name: 'isActive', type: "BOOLEAN DEFAULT FALSE" },
       { name: 'isBlocked', type: "BOOLEAN DEFAULT FALSE" },
       { name: 'created_at', type: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" }
@@ -22,7 +27,7 @@ const createUsersTable = async (cb) => {
 
     for (const col of requiredColumns) {
       const [result] = await db.query(
-        `SELECT COUNT(*) AS cnt
+        `SELECT COLUMN_TYPE
          FROM information_schema.COLUMNS
          WHERE TABLE_SCHEMA = DATABASE()
            AND TABLE_NAME = 'users'
@@ -30,9 +35,14 @@ const createUsersTable = async (cb) => {
         [col.name]
       );
 
-      if (result[0].cnt === 0) {
+      if (result.length === 0) {
+        // Column doesn't exist → add it
         await db.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`);
         console.log(`✅ Added column '${col.name}' to users table.`);
+      } else if (col.expectedType && result[0].COLUMN_TYPE !== col.expectedType) {
+        // Column exists but ENUM is incorrect → update it
+        await db.query(`ALTER TABLE users MODIFY COLUMN ${col.name} ${col.type}`);
+        console.log(`🔄 Updated column '${col.name}' type to match expected ENUM.`);
       }
     }
 

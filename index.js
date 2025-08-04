@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
+import teamRouter from './routes/teamRouter.js';
 import createUsersTable from './database/createTable.js';
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(cors());
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
+app.use('/api/team', teamRouter);
 
 createUsersTable(() => {
     app.listen(port, () => {
