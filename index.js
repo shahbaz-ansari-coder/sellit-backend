@@ -10,7 +10,7 @@ import createUsersTable from './database/createTable.js';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
 app.use(cors());
