@@ -7,10 +7,16 @@ export const findUserById = async (id) => {
 };
 
 //  Get all users
+// Get all users except team_member
 export const getAllUsers = async () => {
-    const [rows] = await db.execute(`SELECT id, username, identifier, role, isActive, isBlocked, created_at FROM users`);
+    const [rows] = await db.execute(`
+        SELECT id, username, identifier, role, isActive, isBlocked, created_at
+        FROM users
+        WHERE role != 'team_member'
+    `);
     return rows;
 };
+
 
 // Delete user
 export const deleteUserById = async (id) => {
