@@ -4,7 +4,7 @@ import { addTeamMemberByAdmin, editTeamMemberByAdmin, getTeamMembers } from '../
 const router = express.Router();
 
 router.get('/get-team/:id', getTeamMembers);
-router.post('/add-team/', addTeamMemberByAdmin);
+router.post('/add-team/:id', addTeamMemberByAdmin);
 router.put('/edit-team/:id', editTeamMemberByAdmin);
 
 
