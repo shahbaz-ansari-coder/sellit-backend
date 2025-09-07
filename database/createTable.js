@@ -214,6 +214,191 @@ CREATE TABLE IF NOT EXISTS job_ads (
   );
 `);
 
+    await db.query(`
+  CREATE TABLE IF NOT EXISTS property_rent_ads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sub_category VARCHAR(255),          
+    property_type VARCHAR(255), 
+    ad_title VARCHAR(255),
+    description TEXT,
+    furnished TINYINT(1) DEFAULT 0, 
+
+    bedrooms INT,
+    bathrooms INT,
+    storeys INT,
+    construction_state VARCHAR(100), 
+
+    features JSON,             
+
+    area_unit VARCHAR(50),        
+    area DECIMAL(10,2),           
+    location VARCHAR(255),
+    rent_price DECIMAL(15,2),   
+
+    seller_name VARCHAR(255),
+    seller_contact VARCHAR(50),
+    image_urls JSON,
+    attachment_urls JSON,
+    identifier VARCHAR(255),      
+    thumbnail_url VARCHAR(500),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+    await db.query(`
+CREATE TABLE IF NOT EXISTS bike_ads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sub_category VARCHAR(100),
+  ad_title VARCHAR(255),
+  description TEXT,
+  make VARCHAR(100),
+  model VARCHAR(100),
+  year YEAR,
+  engine_type VARCHAR(100),
+  engine_capacity VARCHAR(100),
+  kms_driven VARCHAR(100),
+  ignition_type VARCHAR(100),
+  origin VARCHAR(100),
+  bike_condition VARCHAR(100), 
+  registration_city VARCHAR(100),
+  features JSON,
+  location VARCHAR(255),
+  price DECIMAL(10,2),
+  seller_name VARCHAR(100),
+  seller_contact VARCHAR(50),
+  image_urls JSON,
+  attachment_urls JSON,
+  identifier VARCHAR(255),
+  thumbnail_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+`);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS electronics_ads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sub_category VARCHAR(100),
+  ad_title VARCHAR(255),
+  description TEXT,
+  type VARCHAR(100),
+  brand VARCHAR(100),
+  model VARCHAR(100),
+  item_condition VARCHAR(100),
+  warranty VARCHAR(100),
+  features JSON,
+  location VARCHAR(255),
+  price DECIMAL(10,2),
+  seller_name VARCHAR(100),
+  seller_contact VARCHAR(50),
+  image_urls JSON,
+  attachment_urls JSON,
+  identifier VARCHAR(255),
+  thumbnail_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS animal_ads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sub_category VARCHAR(100),
+  ad_title VARCHAR(255),
+  description TEXT,
+  type_of_animal VARCHAR(100),
+  breed VARCHAR(100),
+  sex VARCHAR(50),
+  age VARCHAR(50),
+  color VARCHAR(50),
+  vaccination_status VARCHAR(100),
+  features JSON,
+  location VARCHAR(255),
+  price DECIMAL(10,2),
+  seller_name VARCHAR(100),
+  seller_contact VARCHAR(50),
+  image_urls JSON,
+  attachment_urls JSON,
+  identifier VARCHAR(255),
+  thumbnail_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS fashion_ads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sub_category VARCHAR(100),
+  ad_title VARCHAR(255),
+  description TEXT,
+  sex_gender VARCHAR(50),
+  brand VARCHAR(100),
+  size VARCHAR(50),
+  color VARCHAR(50),
+  material VARCHAR(100),
+  item_condition VARCHAR(100),
+  type VARCHAR(100),
+  features JSON,
+  location VARCHAR(255),
+  price DECIMAL(10,2),
+  seller_name VARCHAR(100),
+  seller_contact VARCHAR(50),
+  image_urls JSON,
+  attachment_urls JSON,
+  identifier VARCHAR(255),
+  thumbnail_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+      await db.query(`
+    CREATE TABLE IF NOT EXISTS books_sports_ads (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      sub_category VARCHAR(100),
+      ad_title VARCHAR(255),
+      description TEXT,
+      item_type VARCHAR(100),
+      genre_category VARCHAR(100),
+      author_artist_brand VARCHAR(100),
+      ad_condition VARCHAR(100),
+      language VARCHAR(100),
+      format VARCHAR(100),
+      features JSON,
+      location VARCHAR(255),
+      price DECIMAL(10,2),
+      seller_name VARCHAR(100),
+      seller_contact VARCHAR(50),
+      image_urls JSON,
+      attachment_urls JSON,
+      identifier VARCHAR(255),
+      thumbnail_url VARCHAR(500),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  await db.query(`
+        CREATE TABLE IF NOT EXISTS furniture_ads (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      sub_category VARCHAR(100),
+      ad_title VARCHAR(255),
+      description TEXT,
+      item_type VARCHAR(100),
+      material VARCHAR(100),
+      brand VARCHAR(100),
+      furniture_condition VARCHAR(100),
+      dimensions VARCHAR(100),
+      features JSON,
+      location VARCHAR(255),
+      price DECIMAL(10,2),
+      seller_name VARCHAR(100),
+      seller_contact VARCHAR(50),
+      image_urls JSON,
+      attachment_urls JSON,
+      identifier VARCHAR(255),
+      thumbnail_url VARCHAR(500),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
     console.log("✅ Tables created or updated successfully.");
     cb();

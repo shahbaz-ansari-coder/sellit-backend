@@ -1,8 +1,5 @@
 import db from "../config/db.js";
 
-// models/propertyAdsModel.js
-import pool from "../config/db.js";
-
 export const insertPropertyAd = async (adData) => {
     const {
         sub_category,
