@@ -1,9 +1,10 @@
 import express from 'express';
-import { getUserAds } from '../controllers/manageAdsController.js';
+import { deleteUserAd, getUserAds } from '../controllers/manageAdsController.js';
 
 const router = express.Router();
 
 router.get('/get-ads/:id', getUserAds);
+router.delete("/delete/:table/:id", deleteUserAd);
 
 
 export default router
