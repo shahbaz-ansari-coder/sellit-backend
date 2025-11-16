@@ -3,23 +3,148 @@ import { findUserIdentifier, findUserAds, deleteUserAdModel } from "../models/ma
 // ---------------------------------------------------------
 // 📌 CATEGORY → TABLE MAP FUNCTION (same file as controller)
 // ---------------------------------------------------------
-const categoryToTable = (category) => {
-    const map = {
-        mobile: "mobile_ads",
-        motors: "motors_ads",
-        property: "property_ads",
-        kids: "kids_ads",
-        rent: "property_rent_ads",
-        bikes: "bike_ads",
-        electronics: "electronics_ads",
-        animals: "animal_ads",
-        fashion: "fashion_ads",
-        books_sports: "books_sports_ads",
-        furniture: "furniture_ads",
-    };
+// Sub-category groups
+const subCategoryGroups = {
+    mobile_ads: [
+        "Mobile Phones",
+        "Tablets",
+        "Accessories"
+    ],
 
-    return map[category] || null;
+    motors_ads: [
+        "Cars",
+        "Cars Accessories",
+        "Spare Parts",
+        "Buses, Vans & Trucks",
+        "Rickshaw & Chingchi",
+        "Tractors & Trailers",
+        "Boats",
+        "Other Vehicles"
+    ],
+
+    property_ads: [
+        "Houses",
+        "Plots",
+        "Flats",
+        "Commercial",
+        "Farm Houses",
+        "Rooms",
+        "Other Property"
+    ],
+
+    property_rent_ads: [
+        "Houses for Rent",
+        "Flats for Rent",
+        "Commercial for Rent",
+        "Rooms for Rent",
+        "Portions & Floors for Rent",
+        "Vacation Rentals",
+        "Other Property for Rent"
+    ],
+
+    electronics_ads: [
+        "Computers & Accessories",
+        "TV - Home Audio & Video",
+        "Cameras & Accessories",
+        "Games & Entertainment",
+        "Other Home Appliances",
+        "Kitchen Appliances",
+        "AC & Coolers",
+        "Washing Machines & Dryers",
+        "Generators, UPS & Power Solutions",
+        "Solar Panels & Inverters"
+    ],
+
+    bike_ads: [
+        "Motorcycles",
+        "Scooters",
+        "Spare Parts",
+        "Bicycles",
+        "ATV & Quads",
+        "Other Bikes"
+    ],
+
+    job_ads: [
+        "Accounting & Finance",
+        "Administration",
+        "Advertising & PR",
+        "Architecture & Design",
+        "Customer Service",
+        "Education",
+        "Engineering",
+        "Healthcare",
+        "Human Resources",
+        "IT & Telecom",
+        "Manufacturing",
+        "Marketing & Communications",
+        "Sales",
+        "Other Jobs"
+    ],
+
+    animal_ads: [
+        "Birds",
+        "Cats",
+        "Dogs",
+        "Fish & Aquariums",
+        "Horses",
+        "Livestock",
+        "Other Animals"
+    ],
+
+    furniture_ads: [
+        "Sofa & Chairs",
+        "Beds & Wardrobes",
+        "Home Decoration",
+        "Tables & Dining",
+        "Office Furniture",
+        "Other Household Items"
+    ],
+
+    fashion_ads: [
+        "Clothes",
+        "Footwear",
+        "Watches",
+        "Jewellery",
+        "Sunglasses",
+        "Bags & Luggage",
+        "Wedding",
+        "Skin & Hair",
+        "Makeup",
+        "Perfumes",
+        "Other Fashion"
+    ],
+
+    books_sports_ads: [
+        "Books & Magazines",
+        "Musical Instruments",
+        "Sports Equipment",
+        "Gym & Fitness",
+        "Other Hobbies"
+    ],
+
+    kids_ads: [
+        "Kids Furniture",
+        "Toys & Games",
+        "Prams & Walkers",
+        "Swings & Bouncers",
+        "Car Seats",
+        "Kids Bikes & Scooters",
+        "Kids Accessories",
+        "Kids Clothing",
+        "Other Kids Items"
+    ]
 };
+
+
+// 🎯 Main Function — Subcategory → Table Name
+export const getTableBySubcategory = (subcat) => {
+    for (const table in subCategoryGroups) {
+        if (subCategoryGroups[table].includes(subcat)) {
+            return table;
+        }
+    }
+    return null; // Not found
+  };
 
 // ---------------------------------------------------------
 // 📌 GET ALL ADS OF A USER
@@ -56,19 +181,19 @@ export const getUserAds = async (req, res) => {
 // ---------------------------------------------------------
 export const deleteUserAd = async (req, res) => {
     try {
-        const { category, id } = req.params;
+        const { subcategory, id } = req.params;
 
-        // Convert category to table name
-        const table = categoryToTable(category);
+        // 1️⃣ Convert sub-category → table name
+        const table = getTableBySubcategory(subcategory);
 
         if (!table) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid category",
+                message: "Invalid subcategory",
             });
         }
 
-        // Delete ad from correct table
+        // 2️⃣ Delete ad from correct table
         const deleted = await deleteUserAdModel(table, id);
 
         if (!deleted) {
@@ -78,10 +203,11 @@ export const deleteUserAd = async (req, res) => {
             });
         }
 
+        // 3️⃣ Success Response
         return res.status(200).json({
             success: true,
             message: "Ad deleted successfully",
-            category,
+            subcategory,
             table
         });
 
