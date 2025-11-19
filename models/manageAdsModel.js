@@ -36,3 +36,50 @@ export const findUserAds = async (identifier) => {
 
     return ads;
 };
+
+const adTables = [
+    "mobile_ads",
+    "motors_ads",
+    "property_ads",
+    "kids_ads",
+    "property_rent_ads",
+    "bike_ads",
+    "electronics_ads",
+    "animal_ads",
+    "fashion_ads",
+    "books_sports_ads",
+    "furniture_ads"
+];
+
+// Count total ads from all tables
+export const countAllAds = async () => {
+    let total = 0;
+
+    for (const table of adTables) {
+        const [rows] = await db.query(
+            `SELECT COUNT(*) AS total FROM ${table}`
+        );
+        total += rows[0].total;
+    }
+
+    return total;
+};
+
+// Fetch ALL ads → merge → sort → paginate
+export const getAllRecentAdsFromTables = async (limit, offset) => {
+    const queries = adTables.map(table =>
+        db.query(`SELECT *, '${table}' AS source FROM ${table}`)
+    );
+
+    const results = await Promise.all(queries);
+
+    let allAds = results.flatMap(([rows]) => rows);
+
+    // Sort by latest first
+    allAds.sort((a, b) => b.id - a.id);
+
+    // apply pagination
+    const paginatedAds = allAds.slice(offset, offset + limit);
+
+    return paginatedAds;
+};

@@ -1,4 +1,4 @@
-import { findUserIdentifier, findUserAds, deleteUserAdModel } from "../models/manageAdsModel.js";
+import { findUserIdentifier, findUserAds, deleteUserAdModel, countAllAds, getAllRecentAdsFromTables } from "../models/manageAdsModel.js";
 
 // ---------------------------------------------------------
 // 📌 CATEGORY → TABLE MAP FUNCTION (same file as controller)
@@ -173,6 +173,34 @@ export const getUserAds = async (req, res) => {
     } catch (error) {
         console.error("❌ Error fetching user ads:", error);
         return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const getAllRecentAds = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 18;
+        const offset = (page - 1) * limit;
+
+        const totalAds = await countAllAds();
+
+        const ads = await getAllRecentAdsFromTables(limit, offset);
+
+        return res.status(200).json({
+            success: true,
+            total_ads: totalAds,
+            page,
+            total_pages: Math.ceil(totalAds / limit),
+            ads_per_page: limit,
+            ads
+        });
+
+    } catch (error) {
+        console.error("❌ Error fetching recent ads:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
     }
 };
 
