@@ -73,13 +73,114 @@ export const getAllRecentAdsFromTables = async (limit, offset) => {
 
     const results = await Promise.all(queries);
 
+    // merge all ads
     let allAds = results.flatMap(([rows]) => rows);
 
-    // Sort by latest first
-    allAds.sort((a, b) => b.id - a.id);
+    // Sort by created_at (latest first)
+    allAds.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     // apply pagination
     const paginatedAds = allAds.slice(offset, offset + limit);
 
     return paginatedAds;
+};
+
+export const getSingleAdModel = async (table, id) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT * FROM \`${table}\` WHERE id = ? LIMIT 1`,
+            [id]
+        );
+
+        return rows.length > 0 ? rows[0] : null;
+    } catch (error) {
+        console.error("❌ DB Error:", error);
+        return null;
+    }
+};
+
+export const findSearchedAds = async (text, location, limit, offset) => {
+    const cleanedText = text.trim().toLowerCase(); // remove trailing or extra spaces
+    const likeText = `%${cleanedText}%`;
+
+    const locationCondition = location === "All Pakistan"
+        ? "1"
+        : "location = ?";
+
+    const tables = [
+        "mobile_ads",
+        "motors_ads",
+        "property_ads",
+        "kids_ads",
+        "property_rent_ads",
+        "bike_ads",
+        "electronics_ads",
+        "animal_ads",
+        "fashion_ads",
+        "books_sports_ads",
+        "furniture_ads",
+    ];
+
+    // SMART SEARCH CONDITIONS
+    const whereSmart = `
+        (${locationCondition})
+        AND (
+            ad_title LIKE '${cleanedText}%'
+            OR description LIKE '${cleanedText}%'
+            OR sub_category LIKE '${cleanedText}%'
+
+            OR ad_title REGEXP '[[:<:]]${cleanedText}[[:>:]]'
+            OR description REGEXP '[[:<:]]${cleanedText}[[:>:]]'
+            OR sub_category REGEXP '[[:<:]]${cleanedText}[[:>:]]'
+
+            OR ad_title LIKE ?
+            OR description LIKE ?
+            OR sub_category LIKE ?
+        )
+    `;
+
+    const queries = tables.map(table =>
+        db.query(
+            `
+            SELECT *, '${table}' AS source,
+            (
+                CASE
+                    WHEN ad_title LIKE '${cleanedText}%' THEN 1
+                    WHEN description LIKE '${cleanedText}%' THEN 1
+                    WHEN sub_category LIKE '${cleanedText}%' THEN 1
+
+                    WHEN ad_title REGEXP '[[:<:]]${cleanedText}[[:>:]]' THEN 2
+                    WHEN description REGEXP '[[:<:]]${cleanedText}[[:>:]]' THEN 2
+                    WHEN sub_category REGEXP '[[:<:]]${cleanedText}[[:>:]]' THEN 2
+
+                    WHEN ad_title LIKE '%${cleanedText}%' THEN 3
+                    WHEN description LIKE '%${cleanedText}%' THEN 3
+                    WHEN sub_category LIKE '%${cleanedText}%' THEN 3
+                    ELSE 4
+                END
+            ) AS relevance
+            FROM ${table}
+            WHERE ${whereSmart}
+        `,
+            location === "All Pakistan"
+                ? [likeText, likeText, likeText]
+                : [location, likeText, likeText, likeText]
+        )
+    );
+
+    const results = await Promise.all(queries);
+    let ads = results.flatMap(([rows]) => rows);
+
+    // Sort by relevance → then newest by ID
+    ads.sort((a, b) => {
+        if (a.relevance === b.relevance) {
+            return b.id - a.id;
+        }
+        return a.relevance - b.relevance;
+    });
+
+    // Pagination
+    const paginated = ads.slice(offset, offset + limit);
+
+    return { ads: paginated, total: ads.length };
 };

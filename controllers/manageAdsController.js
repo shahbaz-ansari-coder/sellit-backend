@@ -1,9 +1,5 @@
-import { findUserIdentifier, findUserAds, deleteUserAdModel, countAllAds, getAllRecentAdsFromTables } from "../models/manageAdsModel.js";
+import { findUserIdentifier, findUserAds, deleteUserAdModel, countAllAds, getAllRecentAdsFromTables, getSingleAdModel, findSearchedAds } from "../models/manageAdsModel.js";
 
-// ---------------------------------------------------------
-// 📌 CATEGORY → TABLE MAP FUNCTION (same file as controller)
-// ---------------------------------------------------------
-// Sub-category groups
 const subCategoryGroups = {
     mobile_ads: [
         "Mobile Phones",
@@ -135,8 +131,6 @@ const subCategoryGroups = {
     ]
 };
 
-
-// 🎯 Main Function — Subcategory → Table Name
 export const getTableBySubcategory = (subcat) => {
     for (const table in subCategoryGroups) {
         if (subCategoryGroups[table].includes(subcat)) {
@@ -146,9 +140,6 @@ export const getTableBySubcategory = (subcat) => {
     return null; // Not found
   };
 
-// ---------------------------------------------------------
-// 📌 GET ALL ADS OF A USER
-// ---------------------------------------------------------
 export const getUserAds = async (req, res) => {
     try {
         const { id } = req.params;
@@ -204,9 +195,6 @@ export const getAllRecentAds = async (req, res) => {
     }
 };
 
-// ---------------------------------------------------------
-// 📌 DELETE USER AD
-// ---------------------------------------------------------
 export const deleteUserAd = async (req, res) => {
     try {
         const { subcategory, id } = req.params;
@@ -241,6 +229,65 @@ export const deleteUserAd = async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error deleting ad:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const getSingleAd = async (req, res) => {
+    try {
+        const { table, id } = req.params;
+
+        if (!table || !id) {
+            return res.status(400).json({
+                success: false,
+                message: "Table name and ID are required",
+            });
+        }
+
+        // Fetch ad from dynamic table
+        const ad = await getSingleAdModel(table, id);
+
+        if (!ad) {
+            return res.status(404).json({
+                success: false,
+                message: "Ad not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            ad,
+        });
+
+    } catch (error) {
+        console.error("❌ Error fetching single ad:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+export const searchAds = async (req, res) => {
+    try {
+        const { text = "", location = "All Pakistan" } = req.query;
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+        const offset = (page - 1) * limit;
+
+        const { ads, total } = await findSearchedAds(text, location, limit, offset);
+
+        return res.status(200).json({
+            success: true,
+            total_ads: total,
+            page,
+            total_pages: Math.ceil(total / limit),
+            ads,
+        });
+
+    } catch (error) {
+        console.error("❌ Search Error:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
